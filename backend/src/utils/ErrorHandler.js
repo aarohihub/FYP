@@ -1,11 +1,9 @@
 class ErrorHandler extends Error {
-  constructor(sucessCode, message = "something went wrong", errors = []) {
+  constructor(statusCode, message = "something went wrong", errors = []) {
     super(message);
-    this.sucessCode = sucessCode;
+    this.statusCode = statusCode;
     this.message = message;
     this.errors = errors;
-    this.data = null;
-    this.sucess = null;
   }
 }
 module.exports = ErrorHandler;

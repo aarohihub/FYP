@@ -1,8 +1,8 @@
-const generateOtpEmail = (firstName, lastName, otp) => {
+const generateOtpEmail = (fullName, otp) => {
   return `
       <div style="font-family: 'Comic Sans MS', cursive, sans-serif; line-height: 1.6; color: #333; background-color: #f2f2f2; padding: 20px; border-radius: 8px;">
         <h2 style="color: #FF6347; text-align: center; font-size: 30px;">Welcome to Our Awesome Service!</h2>
-        <p style="font-size: 18px; text-align: center; color: #555;">Hey there, ${firstName} ${lastName}!</p>
+        <p style="font-size: 18px; text-align: center; color: #555;">Hey there, ${fullName} !</p>
         <p style="font-size: 16px; color: #555; text-align: center;">You're just one step away from greatness!</p>
         <h3 style="color: #FF4500; background-color: #fff; padding: 15px 25px; border-radius: 5px; text-align: center; font-size: 36px; margin: 20px 0;">
           ${otp}

@@ -1,13 +1,47 @@
 import { FaGooglePlusG } from "react-icons/fa6";
 import { Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { axiosInstance } from "../libs/axios";
+import { toast } from "react-hot-toast";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handelChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const validateForm = () => {
+    if (!formData.fullName.trim()) return toast.error("Full name is required");
+    if (!formData.email.trim()) return toast.error("Email is required");
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      return toast.error("Invalid email format");
+    if (!formData.password) return toast.error("Password is required");
+    if (formData.password.length < 5)
+      return toast.error("Password must be at least 5 characters");
+
+    return true;
+  };
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+    const isValid = validateForm();
+    if (!isValid) return;
+    try {
+      const res = await axiosInstance.post("/register", formData);
+      // console.log(res.data.user);
+      toast.success("Send OTP into your email Account successfully!");
+      navigate("/verifyOtp");
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -36,9 +70,11 @@ export default function Signup() {
                   <input
                     name="name"
                     type="text"
+                    id="fullName"
                     required
                     className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter name"
+                    onChange={handelChange}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -67,9 +103,11 @@ export default function Signup() {
                   <input
                     name="email"
                     type="email"
+                    id="email"
                     required
                     className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter email"
+                    onChange={handelChange}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -112,9 +150,11 @@ export default function Signup() {
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    id="password"
                     required
                     className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter password"
+                    onChange={handelChange}
                   />
                   <svg
                     onClick={togglePassword}
@@ -134,7 +174,7 @@ export default function Signup() {
 
               <div className="mt-12 w-full">
                 <div className="flex flex-col gap-4">
-                  <button className="btn glass">
+                  <button onClick={submitForm} className="btn glass">
                     <Users size={20} strokeWidth={1.75} />
                     Register
                   </button>
@@ -150,7 +190,6 @@ export default function Signup() {
                     className="font-semibold hover:underline ml-1"
                   >
                     Login here
-                    {console.log("click")}
                   </Link>
                 </p>
               </div>

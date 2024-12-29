@@ -7,17 +7,17 @@ const sendToken = require("../utils/JwkToken");
 
 // ! user register controller
 exports.registerUser = asyncHandler(async (req, res, next) => {
-  const { firstName, lastName, email, password } = req.body;
+  const { fullName, email, password } = req.body;
 
   const existingUser = await User.findOne({ email: email });
   if (existingUser) {
-    return next(new ErrorHandler(401, "user already registered"));
+    return next(new ErrorHandler(409, "User already registered"));
   }
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
   const otpExpire = new Date();
   otpExpire.setMinutes(otpExpire.getMinutes() + 10);
-  let message = generateOtpEmail(firstName, lastName, otp);
+  let message = generateOtpEmail(fullName, otp);
   try {
     await sendOtp({
       email: email,
@@ -30,8 +30,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   }
 
   const user = await User.create({
-    firstName,
-    lastName,
+    fullName,
     email,
     password,
     otp,
