@@ -4,7 +4,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const sendOtp = require("../utils/SendOtp");
 const generateOtpEmail = require("../utils/Emailformat");
 const sendToken = require("../utils/JwkToken");
-
+const bcrypt = require("bcrypt");
 // ! user register controller
 exports.registerUser = asyncHandler(async (req, res, next) => {
   const { fullName, email, password } = req.body;
@@ -138,5 +138,40 @@ exports.logOutUser = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     sucess: true,
     message: "User logged out",
+  });
+});
+
+// ? Login with google auth
+
+exports.googleLogin = asyncHandler(async (req, res, next) => {
+  const { email, fullName, avatar } = req.body;
+  let existingUser = await User.findOne({ email });
+
+  if (existingUser) {
+    return res.status(200).json({
+      message: "User logged in successfully",
+      user: existingUser,
+    });
+  }
+
+  const generatePassword =
+    Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+
+  const hashedPassword = await bcrypt.hash(generatePassword, 10);
+
+  const newUser = new User({
+    fullName,
+    email,
+    password: hashedPassword,
+    confirmPassword: hashedPassword,
+    avatar,
+    isVerified: true,
+  });
+
+  const savedUser = await newUser.save();
+
+  res.status(201).json({
+    message: "User registered and logged in successfully",
+    user: savedUser,
   });
 });

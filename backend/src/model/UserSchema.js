@@ -20,7 +20,6 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: [true, "Password is required"],
       minlength: 5,
-      maxlength: 10,
     },
     avatar: {
       type: String,

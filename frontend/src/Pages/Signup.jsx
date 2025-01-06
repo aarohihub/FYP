@@ -4,11 +4,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { axiosInstance } from "../libs/axios";
 import { toast } from "react-hot-toast";
+import OAuth from "../Components/Oauth/OAuth";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
@@ -35,12 +37,14 @@ export default function Signup() {
     const isValid = validateForm();
     if (!isValid) return;
     try {
+      setLoading(true);
       const res = await axiosInstance.post("/register", formData);
-      // console.log(res.data.user);
       toast.success("Send OTP into your email Account successfully!");
+      setLoading(false);
       navigate("/verifyOtp");
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
 
@@ -174,14 +178,15 @@ export default function Signup() {
 
               <div className="mt-12 w-full">
                 <div className="flex flex-col gap-4">
-                  <button onClick={submitForm} className="btn glass">
+                  <button
+                    onClick={submitForm}
+                    className="btn glass"
+                    disabled={loading}
+                  >
                     <Users size={20} strokeWidth={1.75} />
-                    Register
+                    {loading ? "Loading..." : " Register"}
                   </button>
-                  <button className="btn glass">
-                    <FaGooglePlusG className="w-6 h-6" />
-                    Google
-                  </button>
+                  <OAuth />
                 </div>
                 <p className="text-sm mt-8 select-none">
                   Already have an account?{" "}

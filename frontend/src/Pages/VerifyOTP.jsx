@@ -17,15 +17,16 @@ export default function VerifyOTP() {
 
   const handelForm = async (e) => {
     e.preventDefault();
-    const res = await axiosInstance.post("/verify/otp", { otp });
-    if (!res) {
-      toast.error("Otp not sent");
-    }
-    if ((res.data.seccess = true)) {
-      return navigate("/");
-    }
-    toast.success("sucessfully verified");
     try {
+      const res = await axiosInstance.post("/verify/otp", { otp });
+
+      if (!res) {
+        toast.error("Otp not sent");
+      }
+      if ((res.data.success = true)) {
+        return navigate("/");
+      }
+      toast.success("sucessfully verified");
     } catch (error) {
       console.log("something went wrong", error);
       toast.error("Something went wrong");

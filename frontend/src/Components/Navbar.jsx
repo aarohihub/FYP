@@ -1,8 +1,12 @@
 import { Settings, MessageSquare, Building, User } from "lucide-react";
-import { Link } from "react-router-dom";
-// import logo from "../../public/images/logo-.png";
+import { Link, useNavigate } from "react-router-dom";
 import log1 from "/images/Header.png";
+import { useSelector } from "react-redux";
 export default function Navbar() {
+  const navigate = useNavigate();
+  const { currentUser } = useSelector((state) => state.user);
+  let role = currentUser?.role;
+
   return (
     <>
       <div className="navbar ">
@@ -11,7 +15,7 @@ export default function Navbar() {
             <Link to="/">
               <img className="h-12 w-12 rounded-full" src={log1} alt="" />
             </Link>
-            {/* <Building size={20} strokeWidth={1.75} /> */}
+
             <span>Realestate</span>
           </a>
         </div>
@@ -35,17 +39,6 @@ export default function Navbar() {
                 <Settings className="w-4 h-4 animate-spin" />
                 <span className="hidden sm:inline "></span>
               </Link>
-
-              <Link
-                to={"/message"}
-                className={`
-            btn btn-sm gap-2 transition-colors 
-            
-            `}
-              >
-                <MessageSquare className="w-4 h-4 " />
-                <span className="hidden sm:inline "></span>
-              </Link>
               <Link
                 to={"/signup"}
                 className={`
@@ -57,42 +50,60 @@ export default function Navbar() {
 
                 <span className="hidden sm:inline "></span>
               </Link>
+              {role === "user" && (
+                <>
+                  {" "}
+                  <Link
+                    to={"/message"}
+                    className={`
+            btn btn-sm gap-2 transition-colors 
+            
+            `}
+                  >
+                    <MessageSquare className="w-4 h-4 " />
+                    <span className="hidden sm:inline "></span>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
-          <div className="dropdown dropdown-end">
-            <div
-              tabIndex={0}
-              role="button"
-              className="btn btn-ghost btn-circle avatar"
-            >
-              <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS Navbar component"
-                  src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
-                />
+
+          {role == "user" && (
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-ghost btn-circle avatar"
+              >
+                <div className="w-10 rounded-full">
+                  <img
+                    alt="Tailwind CSS Navbar component"
+                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.webp"
+                  />
+                </div>
               </div>
+              <ul
+                tabIndex={0}
+                className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
+              >
+                <li>
+                  <a className="justify-between">
+                    Profile
+                    <span className="badge">New</span>
+                  </a>
+                </li>
+                <li>
+                  <a>Add Property</a>
+                </li>
+                <li>
+                  <a>Show Property</a>
+                </li>
+                <li>
+                  <a>Logout</a>
+                </li>
+              </ul>
             </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <a className="justify-between">
-                  Profile
-                  <span className="badge">New</span>
-                </a>
-              </li>
-              <li>
-                <a>Add Property</a>
-              </li>
-              <li>
-                <a>Show Property</a>
-              </li>
-              <li>
-                <a>Logout</a>
-              </li>
-            </ul>
-          </div>
+          )}
         </div>
       </div>
     </>

@@ -1,7 +1,61 @@
+import { useEffect } from "react";
 import { FaGooglePlusG } from "react-icons/fa6";
 import { Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../libs/axios";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../redux/user/userSlice";
+import OAuth from "../Components/Oauth/OAuth";
 export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.user);
+
+  const togglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handelChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const validateForm = () => {
+    if (!formData.email.trim()) return toast.error("Email is required");
+    if (!/\S+@\S+\.\S+/.test(formData.email))
+      return toast.error("Invalid email format");
+    if (!formData.password) return toast.error("Password is required");
+    if (formData.password.length < 5)
+      return toast.error("Password must be at least 5 characters");
+
+    return true;
+  };
+
+  const submitForm = async (e) => {
+    e.preventDefault();
+    const isValid = validateForm();
+    if (!isValid) return;
+    try {
+      dispatch(signInStart());
+      const res = await axiosInstance.post("/login", formData);
+      dispatch(signInSuccess(res.data.user));
+      toast.success("Login successfully");
+      if (res.data.user) {
+        return navigate("/");
+      }
+    } catch (error) {
+      console.log(error);
+      dispatch(signInFailure());
+    }
+  };
   return (
     <>
       <div className="font-[sans-serif]  h-full ">
@@ -28,9 +82,11 @@ export default function Login() {
                   <input
                     name="email"
                     type="text"
+                    id="email"
                     required
                     className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter email"
+                    onChange={handelChange}
                   />
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -71,12 +127,15 @@ export default function Login() {
                 <div className="relative flex items-center">
                   <input
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
+                    id="password"
                     className="w-full bg-transparent text-sm  border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter password"
+                    onChange={handelChange}
                   />
                   <svg
+                    onClick={togglePassword}
                     xmlns="http://www.w3.org/2000/svg"
                     fill="#bbb"
                     stroke="#bbb"
@@ -93,14 +152,16 @@ export default function Login() {
 
               <div className="mt-12 w-full">
                 <div className=" flex flex-col gap-4">
-                  <button className="btn glass">
+                  <button
+                    className="btn glass"
+                    onClick={submitForm}
+                    disabled={loading}
+                  >
                     <Users size={20} strokeWidth={1.75} />
-                    Login
+                    {loading ? "Loading..." : "Login"}
                   </button>
-                  <button className="btn glass">
-                    <FaGooglePlusG className="w-6 h-6" />
-                    Google
-                  </button>
+
+                  <OAuth />
                 </div>
                 <p className="text-sm  mt-8 select-none">
                   Don't have an account?
