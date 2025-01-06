@@ -39,17 +39,24 @@ export default function Navbar() {
                 <Settings className="w-4 h-4 animate-spin" />
                 <span className="hidden sm:inline "></span>
               </Link>
-              <Link
-                to={"/signup"}
-                className={`
+              {role === "user" || role === "admin" ? (
+                <></>
+              ) : (
+                <>
+                  {" "}
+                  <Link
+                    to={"/signup"}
+                    className={`
             btn btn-sm gap-2 transition-colors 
             
             `}
-              >
-                <User className="w-4 h-4 " size={20} strokeWidth={1.75} />
+                  >
+                    <User className="w-4 h-4 " size={20} strokeWidth={1.75} />
 
-                <span className="hidden sm:inline "></span>
-              </Link>
+                    <span className="hidden sm:inline "></span>
+                  </Link>
+                </>
+              )}
               {role === "user" && (
                 <>
                   {" "}
