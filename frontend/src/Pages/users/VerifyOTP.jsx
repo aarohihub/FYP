@@ -4,7 +4,7 @@ import { toast } from "react-hot-toast";
 import { FaEyeSlash } from "react-icons/fa";
 import { IoMdEye } from "react-icons/io";
 
-import { axiosInstance } from "../libs/axios";
+import { axiosInstance } from "../../libs/axios";
 export default function VerifyOTP() {
   const [otp, setOtp] = useState("");
   const [errorMessage, setErrorMessage] = useState("");

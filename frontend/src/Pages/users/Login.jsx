@@ -1,16 +1,24 @@
+import { useEffect } from "react";
 import { FaGooglePlusG } from "react-icons/fa6";
 import { Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
-import { axiosInstance } from "../libs/axios";
+import { useNavigate } from "react-router-dom";
+import { axiosInstance } from "../../libs/axios";
+import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-hot-toast";
-import OAuth from "../Components/Oauth/OAuth";
-
-export default function Signup() {
+import {
+  signInStart,
+  signInSuccess,
+  signInFailure,
+} from "../../redux/user/userSlice";
+import OAuth from "../../Components/Oauth/OAuth";
+export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({});
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const { loading } = useSelector((state) => state.user);
 
   const togglePassword = () => {
     setShowPassword(!showPassword);
@@ -21,7 +29,6 @@ export default function Signup() {
   };
 
   const validateForm = () => {
-    if (!formData.fullName.trim()) return toast.error("Full name is required");
     if (!formData.email.trim()) return toast.error("Email is required");
     if (!/\S+@\S+\.\S+/.test(formData.email))
       return toast.error("Invalid email format");
@@ -37,22 +44,23 @@ export default function Signup() {
     const isValid = validateForm();
     if (!isValid) return;
     try {
-      setLoading(true);
-      const res = await axiosInstance.post("/register", formData);
-      toast.success("Send OTP into your email Account successfully!");
-      setLoading(false);
-      navigate("/verifyOtp");
+      dispatch(signInStart());
+      const res = await axiosInstance.post("/login", formData);
+      dispatch(signInSuccess(res.data.user));
+      toast.success("Login successfully");
+      if (res.data.user) {
+        return navigate("/");
+      }
     } catch (error) {
       console.log(error);
-      setLoading(false);
+      dispatch(signInFailure());
     }
   };
-
   return (
     <>
-      <div className="font-[sans-serif] h-full">
+      <div className="font-[sans-serif]  h-full ">
         <div className="grid md:grid-cols-2 items-center gap-8 h-full">
-          <div className="max-md:order-1 p-4 select-none">
+          <div className="max-md:order-1 p-4 select-none ">
             <img
               src="https://readymadeui.com/signin-image.webp"
               className="lg:max-w-[85%] w-full h-full object-contain block mx-auto"
@@ -60,45 +68,12 @@ export default function Signup() {
             />
           </div>
 
-          <div className="flex items-center md:p-8 p-6 h-full lg:w-11/12 lg:ml-auto rounded-xl">
+          <div className="flex items-center md:p-8 p-6  h-full lg:w-11/12 lg:ml-auto rounded-xl">
             <form className="max-w-lg w-full mx-auto">
               <div className="mb-12">
-                <h3 className="text-3xl font-semibold select-none">
-                  Create an account
+                <h3 className="text-3xl font-semibold  select-none">
+                  Log in with your Account
                 </h3>
-              </div>
-
-              <div>
-                <label className="text-xs block mb-2">Full Name</label>
-                <div className="relative flex items-center">
-                  <input
-                    name="name"
-                    type="text"
-                    id="fullName"
-                    required
-                    className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
-                    placeholder="Enter name"
-                    onChange={handelChange}
-                  />
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="#bbb"
-                    stroke="#bbb"
-                    className="w-[18px] h-[18px] absolute right-2"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      cx="10"
-                      cy="7"
-                      r="6"
-                      data-original="#000000"
-                    ></circle>
-                    <path
-                      d="M14 15H6a5 5 0 0 0-5 5 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 5 5 0 0 0-5-5zm8-4h-2.59l.3-.29a1 1 0 0 0-1.42-1.42l-2 2a1 1 0 0 0 0 1.42l2 2a1 1 0 0 0 1.42 0 1 1 0 0 0 0-1.42l-.3-.29H22a1 1 0 0 0 0-2z"
-                      data-original="#000000"
-                    ></path>
-                  </svg>
-                </div>
               </div>
 
               <div className="mt-8">
@@ -106,7 +81,7 @@ export default function Signup() {
                 <div className="relative flex items-center">
                   <input
                     name="email"
-                    type="email"
+                    type="text"
                     id="email"
                     required
                     className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
@@ -134,8 +109,8 @@ export default function Signup() {
                     >
                       <path
                         fill="none"
-                        strokeMiterlimit="10"
-                        strokeWidth="40"
+                        stroke-miterlimit="10"
+                        stroke-width="40"
                         d="M452 444H60c-22.091 0-40-17.909-40-40v-39.446l212.127-157.782c14.17-10.54 33.576-10.54 47.746 0L492 364.554V404c0 22.091-17.909 40-40 40Z"
                         data-original="#000000"
                       ></path>
@@ -147,16 +122,15 @@ export default function Signup() {
                   </svg>
                 </div>
               </div>
-
               <div className="mt-8">
                 <label className=" text-xs block mb-2">Password</label>
                 <div className="relative flex items-center">
                   <input
                     name="password"
                     type={showPassword ? "text" : "password"}
-                    id="password"
                     required
-                    className="w-full bg-transparent text-sm border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
+                    id="password"
+                    className="w-full bg-transparent text-sm  border-b border-gray-300 focus:border-yellow-400 px-2 py-3 outline-none"
                     placeholder="Enter password"
                     onChange={handelChange}
                   />
@@ -177,24 +151,25 @@ export default function Signup() {
               </div>
 
               <div className="mt-12 w-full">
-                <div className="flex flex-col gap-4">
+                <div className=" flex flex-col gap-4">
                   <button
-                    onClick={submitForm}
                     className="btn glass"
+                    onClick={submitForm}
                     disabled={loading}
                   >
                     <Users size={20} strokeWidth={1.75} />
-                    {loading ? "Loading..." : " Register"}
+                    {loading ? "Loading..." : "Login"}
                   </button>
+
                   <OAuth />
                 </div>
-                <p className="text-sm mt-8 select-none">
-                  Already have an account?{" "}
+                <p className="text-sm  mt-8 select-none">
+                  Don't have an account?
                   <Link
-                    to="/login"
+                    to="/signup"
                     className="font-semibold hover:underline ml-1"
                   >
-                    Login here
+                    Signup here
                   </Link>
                 </p>
               </div>
